@@ -1,5 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
-// THÊM ĐOẠN NÀY: Đọc Port từ Render, nếu không có thì mặc định 8080
+// THÊM ĐOẠN NÀY: Đọc Port từ Render, nếu không có thì mặc định 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 // Add services to the container.
