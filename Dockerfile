@@ -1,21 +1,27 @@
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj và restore trước để tận dụng Docker cache
-COPY ["WebApplication1.csproj", "./"]
-RUN dotnet restore "WebApplication1.csproj"
+# Copy file sln và csproj vào đúng cấu trúc thư mục
+COPY ["WebApplication1.sln", "./"]
+COPY ["WebApplication1/WebApplication1.csproj", "WebApplication1/"]
 
-# Copy toàn bộ code và build
+# Restore các thư viện
+RUN dotnet restore "WebApplication1/WebApplication1.csproj"
+
+# Copy toàn bộ code còn lại
 COPY . .
+
+# Build dự án
+WORKDIR "/src/WebApplication1"
 RUN dotnet publish "WebApplication1.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 2: Run
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Render yêu cầu chạy app qua biến môi trường PORT
+# Railway tự động nhận diện PORT, nhưng ta nên chỉ định rõ
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
